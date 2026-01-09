@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>PlayFilmes+</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+body {
+  margin: 0;
+  background: #121212;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+header {
+  height: 56px;
+  background: #d50000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* NAV BAR (igual HomeActivity) */
+nav {
+  display: flex;
+  background: #1c1c1c;
+}
+
+nav button {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+}
+
+nav button.active {
+  background: #d50000;
+}
+
+/* TELAS */
+.screen {
+  display: none;
+  padding: 8px;
+}
+
+.screen.active {
+  display: block;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.card {
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card span {
+  display: block;
+  padding: 6px;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* PLAYER */
+video {
+  width: 100%;
+  background: #000;
+  border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>PlayFilmes+</header>
+
+<nav>
+  <button onclick="openScreen('home')" class="active">Home</button>
+  <button onclick="openScreen('movies')">Filmes</button>
+  <button onclick="openScreen('series')">Séries</button>
+</nav>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <h3>Bem-vindo ao PlayFilmes+</h3>
+</div>
+
+<!-- MOVIES -->
+<div id="movies" class="screen">
+  <div id="moviesGrid" class="grid"></div>
+</div>
+
+<!-- SERIES -->
+<div id="series" class="screen">
+  <div id="seriesGrid" class="grid"></div>
+</div>
+
+<!-- PLAYER -->
+<div id="player" class="screen">
+  <video id="video" controls autoplay></video>
+</div>
+
+<script>
+/* FIREBASE CONFIG */
+firebase.initializeApp({
+  apiKey: "AIzaSyCFQ9sPaGz5qRMRGCDuaOpsfsH14YeIMHs",
+  databaseURL: "https://playfilmesplusofc-default-rtdb.firebaseio.com",
+  projectId: "playfilmesplusofc",
+  storageBucket: "lionkingpb.appspot.com",
+  appId: "1:595735208583:android:844be20a136cc03e3c4e22"
+});
+
+const db = firebase.database();
+
+/* NAVEGAÇÃO */
+function openScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* CARREGAR FILMES */
+db.ref("filmes").on("value", snap => {
+  moviesGrid.innerHTML = "";
+  snap.forEach(i => {
+    const f = i.val();
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<img src="${f.capa}"><span>${f.titulo}</span>`;
+    card.onclick = () => play(f.video);
+    moviesGrid.appendChild(card);
+  });
+});
+
+/* PLAYER */
+function play(url) {
+  openScreen('player');
+  video.src = url;
+}
+</script>
+
+</body>
+</html>
